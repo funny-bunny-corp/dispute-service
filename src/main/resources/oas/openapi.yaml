@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: Dispute Management API
+  version: 1.0.0
+  description: API for managing disputes, including dispute creation, escalation, and evidence submission.
+servers:
+  - url: https://api.example.com
+    description: Production Server
+  - url: https://api.sandbox.example.com
+    description: Sandbox Server
+paths:
+  /disputes:
+    post:
+      tags:
+        - Dispute Creation
+      summary: Create a new dispute
+      description: Initiates a new dispute for a specific transaction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_id:
+                  type: string
+                  description: The ID of the transaction being disputed.
+                  example: "txn-12345"
+                reason:
+                  type: string
+                  description: The reason for the dispute.
+                  enum: [fraudulent, unauthorized, item_not_received]
+                  example: "fraudulent"
+                initiator:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: The type of initiator.
+                      enum: [customer, merchant]
+                      example: "customer"
+                    id:
+                      type: string
+                      description: The ID of the initiator.
+                      example: "cust-98765"
+                details:
+                  type: string
+                  description: Additional details about the dispute.
+                  example: "Unauthorized transaction detected."
+      responses:
+        201:
+          description: Dispute created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dispute_id:
+                    type: string
+                    description: The unique ID of the created dispute.
+                    example: "dsp-67890"
+                  status:
+                    type: string
+                    description: Initial status of the dispute.
+                    example: "pending"
+  /disputes/{dispute_id}/escalate:
+    patch:
+      tags:
+        - Dispute Escalation
+      summary: Escalate a dispute
+      description: Escalates a dispute to a higher authority or system.
+      parameters:
+        - name: dispute_id
+          in: path
+          required: true
+          description: The ID of the dispute to escalate.
+          schema:
+            type: string
+            example: "dsp-67890"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comments:
+                  type: string
+                  description: Comments explaining the reason for escalation.
+                  example: "Merchant did not respond within the allotted time."
+      responses:
+        200:
+          description: Dispute escalated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dispute_id:
+                    type: string
+                    description: The unique ID of the escalated dispute.
+                    example: "dsp-67890"
+                  status:
+                    type: string
+                    description: The updated status of the dispute.
+                    example: "escalated"
+  /disputes/{dispute_id}/evidence:
+    post:
+      tags:
+        - Evidence Submission
+      summary: Submit evidence for a dispute
+      description: Adds evidence to an existing dispute.
+      parameters:
+        - name: dispute_id
+          in: path
+          required: true
+          description: The ID of the dispute to add evidence to.
+          schema:
+            type: string
+            example: "dsp-67890"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of evidence being submitted.
+                  enum: [document, image, video]
+                  example: "document"
+                data:
+                  type: string
+                  description: A URL or identifier for the evidence data.
+                  example: "https://example.com/evidence/1"
+                submitted_by:
+                  type: string
+                  description: The party submitting the evidence.
+                  enum: [customer, merchant]
+                  example: "customer"
+      responses:
+        200:
+          description: Evidence submitted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    example: "Evidence added successfully."
+                  dispute_id:
+                    type: string
+                    description: The ID of the dispute to which evidence was added.
+                    example: "dsp-67890"
